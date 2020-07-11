@@ -1,0 +1,189 @@
+"""Adapted from natmod's glassdoor-scrape repo (https://github.com/natmod/glassdoor-scrape) and
+arapfaik's scraping-glassdoor-selenium repo (https://github.com/arapfaik/scraping-glassdoor-selenium)"""
+
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from collections import Counter
+import time
+import pandas as pd
+
+def scrape_jobs():
+    job_name, country, num_jobs = input("Please enter a job name, a location and the number of jobs seperated by comma:\n").split(',')
+
+    options = webdriver.ChromeOptions()
+    #options.add_argument('headless')
+
+    driver = webdriver.Chrome(executable_path="C:\\Users\\Darren\\Documents\\GitHub\\Glassdoor-Scrape\\chromedriver.exe", options=options)
+    driver.set_window_size(1120, 1000)
+
+    location_id = {'san francisco':1147401, 'new york':1132348, 'boston':1154532, 'los angeles':1146821, 'singapore': 3235921, 'jakarta':2709872}
+
+    job_name = job_name.strip().lower()
+    country = country.strip().lower()
+    num_jobs = int(num_jobs)
+    if country in location_id:
+        url = 'https://www.glassdoor.ca/Job/jobs.htm?sc.generalKeyword=%22' + job_name + '%22&sc.locationSeoString=' + country + '&locId=' + str(location_id.get(country)) + '&locT=C&jobType=fulltime'
+
+    driver.get(url)
+    jobs = []
+
+    while len(jobs) < num_jobs:
+        time.sleep(4)
+        try:
+            driver.find_element_by_class_name("selected").click()
+        except ElementClickInterceptedException:
+            pass
+        
+        time.sleep(.1)
+        
+        try:
+            driver.find_element_by_id("prefix__icon-close-1").click()
+        except NoSuchElementException:
+            pass
+
+        job_posts = driver.find_elements_by_class_name("jl")
+        for posts in job_posts:  
+            print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
+            if len(jobs) >= num_jobs:
+                break
+
+            posts.click()
+            time.sleep(1)
+            collected = False
+            
+            while not collected:
+                try:
+                    company_name = driver.find_element_by_xpath('.//div[@class="employerName"]').text
+                    location = driver.find_element_by_xpath('.//div[@class="location"]').text
+                    job_title = driver.find_element_by_xpath('.//div[contains(@class, "title")]').text
+                    job_description = driver.find_element_by_xpath('.//div[@class="jobDescriptionContent desc"]').text
+                    collected = True
+                except:
+                    time.sleep(5)
+
+            try:
+                salary_estimate = driver.find_element_by_xpath('.//span[@class="gray small salary"]').text
+            except NoSuchElementException:
+                salary_estimate = -1
+            
+            try:
+                rating = driver.find_element_by_xpath('.//span[@class="rating"]').text
+            except NoSuchElementException:
+                rating = -1
+
+            company_name = company_name[:-4]
+            jobs.append({"Job Title" : job_title,
+            "Salary Estimate" : salary_estimate,
+            "Job Description" : job_description,
+            "Rating" : rating,
+            "Company Name" : company_name,
+            "Location" : location})
+ 
+        try:
+            driver.find_element_by_xpath('.//li[@class="next"]//a').click()
+        except NoSuchElementException:
+            print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs, len(jobs)))
+            break
+    return pd.DataFrame(jobs)
+
+def tokenize_description(description):
+    """take a job description and return a list of tokens excluding stop words"""
+    tokens = word_tokenize(description)
+    stopset = set(stopwords.words('english'))
+    tokens = [w.lower() for w in tokens if not w in stopset]
+    text = nltk.Text(tokens)
+    return list(set(text))
+
+def skill_search():
+    jobs = scrape_jobs()
+    description = jobs["Job Description"]
+    """count frequency of key words (as defined in dictionaries within function) appearing in job descriptions and return dataframe with skill frequency"""
+    words = []
+    for description in results_df['description']:
+        words.append(tokenize_description(description))
+    
+    doc_frequency = Counter()
+    [doc_frequency.update(word) for word in words]
+    
+    prog_lang_dict = Counter({'R':doc_frequency['r'], 'Python':doc_frequency['python'],
+                    'Java':doc_frequency['java'], 'C++':doc_frequency['c++'],
+                    'Ruby':doc_frequency['ruby'], 'Julia':doc_frequency['julia'],
+                    'Perl':doc_frequency['perl'], 'Matlab':doc_frequency['matlab'], 
+                    'Mathematica':doc_frequency['mathematica'], 'Php':doc_frequency['php'],
+                    'JavaScript':doc_frequency['javascript'], 'Scala': doc_frequency['scala'],
+                    'Octave':doc_frequency['octave']})
+                      
+    analysis_tool_dict = Counter({'Excel':doc_frequency['excel'],  'Tableau':doc_frequency['tableau'],
+                        'D3.js':doc_frequency['d3.js'], 'SAS':doc_frequency['sas'],
+                        'SPSS':doc_frequency['spss'], 'D3':doc_frequency['d3'],
+                        'Spotfire': doc_frequency['spotfire'],'Stata':doc_frequency['stata'],
+                        'Power BI': doc_frequency['power bi']})  
+
+    hadoop_dict = Counter({'Hadoop':doc_frequency['hadoop'], 'MapReduce':doc_frequency['mapreduce'],
+                'Spark':doc_frequency['spark'], 'Pig':doc_frequency['pig'],
+                'Hive':doc_frequency['hive'], 'Shark':doc_frequency['shark'],
+                'Oozie':doc_frequency['oozie'], 'ZooKeeper':doc_frequency['zookeeper'],
+                'Flume':doc_frequency['flume'], 'Mahout':doc_frequency['mahout']})
+    
+    other_dict = Counter({'Azure':doc_frequency['azure'], 'AWS':doc_frequency['aws']})
+                
+    database_dict = Counter({'SQL':doc_frequency['sql'], 'NoSQL':doc_frequency['nosql'],
+                    'HBase':doc_frequency['hbase'], 'Cassandra':doc_frequency['cassandra'],
+                    'MongoDB':doc_frequency['mongodb']})
+                    
+    edu_dict = Counter({'Bachelor':doc_frequency['bachelor'],'Master':doc_frequency['master'],\
+                          'PhD': doc_frequency['phd'],'MBA':doc_frequency['mba']})
+                          
+    lang_dict = Counter({'French':doc_frequency['french'],'German':doc_frequency['german'],
+                         'Spanish':doc_frequency['spanish'],'Chinese':doc_frequency['chinese'],
+                         'Japanese':doc_frequency['japanese']})
+          
+    education_dict = Counter({'Computer Science':doc_frequency['computer-science'],  
+                              'Statistics':doc_frequency['statistics'], 
+                              'Mathematics':doc_frequency['mathematics'],
+                              'Physics':doc_frequency['physics'], 
+                              'Machine Learning':doc_frequency['machine-learning'], 
+                              'Economics':doc_frequency['economics'], 
+                              'Software Engineer': doc_frequency['software-engineer'],
+                              'Information System':doc_frequency['information-system'], 
+                              'Quantitative Finance':doc_frequency['quantitative-finance']})
+    
+    skills = prog_lang_dict + analysis_tool_dict + hadoop_dict \
+                           + database_dict + other_dict + education_dict \
+                           + lang_dict +  edu_dict
+    
+    skills_frame = pd.DataFrame(list(skills.items()), columns = ['Term', 'NumPostings'])
+    skills_frame.NumPostings = (skills_frame.NumPostings)*100/len(results_df)
+    
+    # Sort the data for plotting purposes
+    skills_frame.sort_values(by='NumPostings', ascending = False, inplace = True)
+    return skills_frame
+
+
+pd.set_option('display.max_columns', None)
+skill_search()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
