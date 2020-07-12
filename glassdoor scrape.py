@@ -1,11 +1,14 @@
 """Adapted from natmod's glassdoor-scrape repo (https://github.com/natmod/glassdoor-scrape) and
 arapfaik's scraping-glassdoor-selenium repo (https://github.com/arapfaik/scraping-glassdoor-selenium)"""
 
+import time
+import pandas as pd
+import nltk
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from collections import Counter
-import time
-import pandas as pd
+from nltk import word_tokenize
+from nltk.corpus import stopwords
 
 def scrape_jobs():
     job_name, country, num_jobs = input("Please enter a job name, a location and the number of jobs seperated by comma:\n").split(',')
@@ -86,21 +89,20 @@ def scrape_jobs():
             break
     return pd.DataFrame(jobs)
 
-def tokenize_description(description):
-    """take a job description and return a list of tokens excluding stop words"""
-    tokens = word_tokenize(description)
+def simplify_desc(txt):
+    tokens = word_tokenize(txt)
     stopset = set(stopwords.words('english'))
-    tokens = [w.lower() for w in tokens if not w in stopset]
+    tokens = [x.lower() for x in tokens if not x in stopset]
     text = nltk.Text(tokens)
     return list(set(text))
 
 def skill_search():
-    jobs = scrape_jobs()
-    description = jobs["Job Description"]
-    """count frequency of key words (as defined in dictionaries within function) appearing in job descriptions and return dataframe with skill frequency"""
+    jobs_df = scrape_jobs()
+    #description = jobs_df["Job Description"]
     words = []
-    for description in results_df['description']:
-        words.append(tokenize_description(description))
+    
+    for description in jobs_df['Job Description']:
+        words.append(simplify_desc(description))
     
     doc_frequency = Counter()
     [doc_frequency.update(word) for word in words]
@@ -153,7 +155,7 @@ def skill_search():
                            + lang_dict +  edu_dict
     
     skills_frame = pd.DataFrame(list(skills.items()), columns = ['Term', 'NumPostings'])
-    skills_frame.NumPostings = (skills_frame.NumPostings)*100/len(results_df)
+    skills_frame.NumPostings = (skills_frame.NumPostings)*100/len(jobs_df)
     
     # Sort the data for plotting purposes
     skills_frame.sort_values(by='NumPostings', ascending = False, inplace = True)
@@ -161,7 +163,8 @@ def skill_search():
 
 
 pd.set_option('display.max_columns', None)
-skill_search()
+print(skill_search())
+
 
 
 
