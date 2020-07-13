@@ -25,7 +25,8 @@ def scrape_jobs():
     country = country.strip().lower()
     num_jobs = int(num_jobs)
     if country in location_id:
-        url = 'https://www.glassdoor.ca/Job/jobs.htm?sc.generalKeyword=%22' + job_name + '%22&sc.locationSeoString=' + country + '&locId=' + str(location_id.get(country)) + '&locT=C&jobType=fulltime'
+        url = 'https://www.glassdoor.ca/Job/jobs.htm?sc.generalKeyword=%22' + job_name + '%22&sc.locationSeoString=' + country \
+              + '&locId=' + str(location_id.get(country)) + '&locT=C&jobType=fulltime'
 
     driver.get(url)
     jobs = []
@@ -98,7 +99,6 @@ def simplify_desc(txt):
 
 def skill_search():
     jobs_df = scrape_jobs()
-    #description = jobs_df["Job Description"]
     words = []
     
     for description in jobs_df['Job Description']:
@@ -129,7 +129,7 @@ def skill_search():
     
     other_dict = Counter({'Azure':doc_frequency['azure'], 'AWS':doc_frequency['aws']})
                 
-    database_dict = Counter({'SQL':doc_frequency['sql'], 'NoSQL':doc_frequency['nosql'],
+    database_dict = Counter({'SQL':doc_frequency['sql'], 'NoSQL':doc_frequency['nosql'], 'MySQL':doc_frequency['mysql'],
                     'HBase':doc_frequency['hbase'], 'Cassandra':doc_frequency['cassandra'],
                     'MongoDB':doc_frequency['mongodb']})
                     
@@ -149,9 +149,12 @@ def skill_search():
                               'Software Engineer': doc_frequency['software-engineer'],
                               'Information System':doc_frequency['information-system'], 
                               'Quantitative Finance':doc_frequency['quantitative-finance']})
+    #individual graphs
+    #preferred education
+    #top 10 cities
+    #top skills
     
-    skills = prog_lang_dict + analysis_tool_dict + hadoop_dict \
-                           + database_dict + other_dict + education_dict \
+    skills = prog_lang_dict + analysis_tool_dict + hadoop_dict + database_dict + other_dict + education_dict \
                            + lang_dict +  edu_dict
     
     skills_frame = pd.DataFrame(list(skills.items()), columns = ['Term', 'NumPostings'])
@@ -161,6 +164,8 @@ def skill_search():
     skills_frame.sort_values(by='NumPostings', ascending = False, inplace = True)
     return skills_frame
 
+def plot_graph():
+    return
 
 pd.set_option('display.max_columns', None)
 print(skill_search())
