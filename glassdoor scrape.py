@@ -4,6 +4,8 @@ arapfaik's scraping-glassdoor-selenium repo (https://github.com/arapfaik/scrapin
 import time
 import pandas as pd
 import nltk
+import matplotlib.pyplot as plt
+import seaborn as sns
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from collections import Counter
@@ -97,8 +99,7 @@ def simplify_desc(txt):
     text = nltk.Text(tokens)
     return list(set(text))
 
-def skill_search():
-    jobs_df = scrape_jobs()
+def skill_search(jobs_df):
     words = []
     
     for description in jobs_df['Job Description']:
@@ -108,7 +109,7 @@ def skill_search():
     [doc_frequency.update(word) for word in words]
     
     prog_lang_dict = Counter({'R':doc_frequency['r'], 'Python':doc_frequency['python'],
-                    'Java':doc_frequency['java'], 'C++':doc_frequency['c++'],
+                    'Java':doc_frequency['java'], 'C++':doc_frequency['c++'], 'C#':doc_frequency['c#'],
                     'Ruby':doc_frequency['ruby'], 'Julia':doc_frequency['julia'],
                     'Perl':doc_frequency['perl'], 'Matlab':doc_frequency['matlab'], 
                     'Mathematica':doc_frequency['mathematica'], 'Php':doc_frequency['php'],
@@ -136,7 +137,7 @@ def skill_search():
     edu_dict = Counter({'Bachelor':doc_frequency['bachelor'],'Master':doc_frequency['master'],\
                           'PhD': doc_frequency['phd'],'MBA':doc_frequency['mba']})
                           
-    lang_dict = Counter({'French':doc_frequency['french'],'German':doc_frequency['german'],
+    lang_dict = Counter({'English':doc_frequency['english'],'French':doc_frequency['french'],'German':doc_frequency['german'],
                          'Spanish':doc_frequency['spanish'],'Chinese':doc_frequency['chinese'],
                          'Japanese':doc_frequency['japanese']})
           
@@ -149,26 +150,32 @@ def skill_search():
                               'Software Engineer': doc_frequency['software-engineer'],
                               'Information System':doc_frequency['information-system'], 
                               'Quantitative Finance':doc_frequency['quantitative-finance']})
-    #individual graphs
-    #preferred education
-    #top 10 cities
-    #top skills
     
-    skills = prog_lang_dict + analysis_tool_dict + hadoop_dict + database_dict + other_dict + education_dict \
-                           + lang_dict +  edu_dict
+    #skills = prog_lang_dict + analysis_tool_dict + hadoop_dict + database_dict + other_dict + education_dict \
+    #                       + lang_dict +  edu_dict
+
+    skills = prog_lang_dict + analysis_tool_dict + hadoop_dict + database_dict + other_dict
     
-    skills_frame = pd.DataFrame(list(skills.items()), columns = ['Term', 'NumPostings'])
-    skills_frame.NumPostings = (skills_frame.NumPostings)*100/len(jobs_df)
+    skills_frame = pd.DataFrame(list(skills.items()), columns = ['Term', 'Number of Postings'])
+    edu_frame = pd.DataFrame(list(edu_dict.items()), columns = ['Education Level', 'Number of Postings'])
+    focus_frame = pd.DataFrame(list(education_dict.items()), columns = ['Major Focus', 'Number of Postings'])
+    
+    #skills_frame.NumPostings = (skills_frame.NumPostings)*100/len(jobs_df)
     
     # Sort the data for plotting purposes
-    skills_frame.sort_values(by='NumPostings', ascending = False, inplace = True)
-    return skills_frame
+    skills_frame.sort_values(by='Number of Postings', ascending = False, inplace = True)
+    edu_frame.sort_values(by='Number of Postings', ascending = False, inplace = True)
+    focus_frame.sort_values(by='Number of Postings', ascending = False, inplace = True)
+    return skills_frame, edu_frame, focus_frame
 
 def plot_graph():
+    
     return
 
 pd.set_option('display.max_columns', None)
-print(skill_search())
+jobs_df = scrape_jobs()
+skill_df, edu_df, focus_df = skill_search(jobs_df)
+print(skill_df.plot.bar(x='Term', y='Number of Postings'))
 
 
 
