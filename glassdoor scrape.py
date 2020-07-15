@@ -175,7 +175,7 @@ def plot_graph():
 pd.set_option('display.max_columns', None)
 jobs_df = scrape_jobs()
 skill_df, edu_df, focus_df = skill_search(jobs_df)
-print(skill_df.plot.bar(x='Term', y='Number of Postings'))
+skill_df.plot.bar(x='Term', y='Number of Postings')
 
 
 
