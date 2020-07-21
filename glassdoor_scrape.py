@@ -18,7 +18,7 @@ def scrape_jobs():
     options = webdriver.ChromeOptions()
     #options.add_argument('headless')
 
-    driver = webdriver.Chrome(executable_path="C:\\Users\\Darren\\Documents\\GitHub\\Glassdoor-Scrape\\chromedriver.exe", options=options)
+    driver = webdriver.Chrome(executable_path="C:\\Users\\*****\\Documents\\GitHub\\Glassdoor-Scrape\\chromedriver.exe", options=options)
     driver.set_window_size(1120, 1000)
 
     location_id = {'san francisco':1147401, 'new york':1132348, 'boston':1154532, 'los angeles':1146821, 'singapore': 3235921, 'jakarta':2709872}
@@ -136,10 +136,6 @@ def skill_search(jobs_df):
 
     edu_dict = Counter({'Bachelor':doc_frequency['bachelor'],'Master':doc_frequency['master'],\
                           'PhD': doc_frequency['phd'],'MBA':doc_frequency['mba']})
-
-    lang_dict = Counter({'English':doc_frequency['english'],'French':doc_frequency['french'],'German':doc_frequency['german'],
-                         'Spanish':doc_frequency['spanish'],'Chinese':doc_frequency['chinese'],
-                         'Japanese':doc_frequency['japanese']})
 
     education_dict = Counter({'Computer Science':doc_frequency['computer science'], 'MIS':doc_frequency['mis'],
                               'Statistics':doc_frequency['statistics'],
