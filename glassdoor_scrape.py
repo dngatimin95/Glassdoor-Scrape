@@ -35,7 +35,7 @@ def scrape_jobs():
     jobs = []
 
     while len(jobs) < num_jobs:
-        time.sleep(4)
+        time.sleep(5)
         try:
             driver.find_element_by_class_name("selected").click()
         except ElementClickInterceptedException:
@@ -111,16 +111,17 @@ def skill_search(jobs_df):
 
     prog_lang_dict = Counter({'R':doc_frequency['r'], 'Python':doc_frequency['python'],
                     'Java':doc_frequency['java'], 'C++':doc_frequency['c++'], 'C#':doc_frequency['c#'],
-                    'Ruby':doc_frequency['ruby'], 'Julia':doc_frequency['julia'],
+                    'C':doc_frequency['c'], 'Ruby':doc_frequency['ruby'], 'Julia':doc_frequency['julia'],
                     'Perl':doc_frequency['perl'], 'Matlab':doc_frequency['matlab'],
-                    'Mathematica':doc_frequency['mathematica'], 'Php':doc_frequency['php'],
-                    'JavaScript':doc_frequency['javascript'], 'Scala': doc_frequency['scala'],
-                    'Octave':doc_frequency['octave']})
+                    'Mathematica':doc_frequency['mathematica'], 'PHP':doc_frequency['php'], 'Dart': doc_frequency['dart'],
+                    'JavaScript':doc_frequency['javascript'], 'Scala': doc_frequency['scala'], 'Rust': doc_frequency['rust'],
+                    'Octave':doc_frequency['octave'], 'Go': doc_frequency['go'], 'Typescript': doc_frequency['typescript'],
+                    'Kotlin': doc_frequency['kotlin'], 'Assembly': doc_frequency['assembly'], 'Swift': doc_frequency['swift']})
 
-    analysis_tool_dict = Counter({'Excel':doc_frequency['excel'],  'Tableau':doc_frequency['tableau'],
+    analysis_tool_dict = Counter({'Excel':doc_frequency['excel'], 'Tableau':doc_frequency['tableau'],
                         'D3.js':doc_frequency['d3.js'], 'SAS':doc_frequency['sas'],
                         'SPSS':doc_frequency['spss'], 'D3':doc_frequency['d3'],
-                        'Spotfire': doc_frequency['spotfire'],'Stata':doc_frequency['stata'],
+                        'Spotfire': doc_frequency['spotfire'], 'Stata':doc_frequency['stata'],
                         'Power BI': doc_frequency['power bi']})
 
     hadoop_dict = Counter({'Hadoop':doc_frequency['hadoop'], 'MapReduce':doc_frequency['mapreduce'],
@@ -129,24 +130,27 @@ def skill_search(jobs_df):
                 'Oozie':doc_frequency['oozie'], 'ZooKeeper':doc_frequency['zookeeper'],
                 'Flume':doc_frequency['flume'], 'Mahout':doc_frequency['mahout']})
 
-    other_dict = Counter({'Azure':doc_frequency['azure'], 'AWS':doc_frequency['aws']})
+    other_dict = Counter({'Azure':doc_frequency['azure'], 'AWS':doc_frequency['aws'], 'Tensorflow':doc_frequency['tensorflow'],
+                        'Pandas':doc_frequency['pandas'], 'Keras':doc_frequency['keras'], 'Django':doc_frequency['django'],
+                        'Flask':doc_frequency['flask'], 'Angular':doc_frequency['angular'], 'jQuery':doc_frequency['jquery'],
+                        'Linux':doc_frequency['linux']})
 
     database_dict = Counter({'SQL':doc_frequency['sql'], 'NoSQL':doc_frequency['nosql'], 'MySQL':doc_frequency['mysql'],
-                    'HBase':doc_frequency['hbase'], 'Cassandra':doc_frequency['cassandra'],
-                    'MongoDB':doc_frequency['mongodb']})
+                    'HBase':doc_frequency['hbase'], 'Cassandra':doc_frequency['cassandra'], 'MongoDB':doc_frequency['mongodb']})
 
-    edu_dict = Counter({'Bachelor':doc_frequency['bachelor'],'Master':doc_frequency['master'],\
-                          'PhD': doc_frequency['phd'],'MBA':doc_frequency['mba']})
+    edu_dict = Counter({'Bachelor':doc_frequency['bachelor'],'Master':doc_frequency['master'],
+                        'PhD': doc_frequency['phd'],'MBA':doc_frequency['mba']})
 
-    education_dict = Counter({'Computer Science':doc_frequency['computer science'], 'MIS':doc_frequency['mis'],
+    education_dict = Counter({'Computer Science':min(doc_frequency['computer'], doc_frequency['science']),
+                              'MIS':doc_frequency['mis'],
                               'Statistics':doc_frequency['statistics'],
                               'Mathematics':doc_frequency['mathematics'],
                               'Physics':doc_frequency['physics'],
-                              'Machine Learning':doc_frequency['machine learning'],
+                              'Machine Learning':min(doc_frequency['machine'], doc_frequency['learning']),
                               'Economics':doc_frequency['economics'],
-                              'Software Engineer': doc_frequency['software engineer'],
-                              'Information System':doc_frequency['information system'],
-                              'Quantitative Finance':doc_frequency['quantitative finance']})
+                              'Software Engineer': min(doc_frequency['software'], doc_frequency['engineer']),
+                              'Information System':min(doc_frequency['information'], doc_frequency['system']),
+                              'Quantitative Finance':min(doc_frequency['quantitative'], doc_frequency['finance'])})
 
     skills = prog_lang_dict + analysis_tool_dict + hadoop_dict + database_dict + other_dict
 
