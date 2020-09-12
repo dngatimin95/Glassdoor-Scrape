@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from webdriver_manager.chrome import ChromeDriverManager
 from collections import Counter
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -18,7 +19,7 @@ def scrape_jobs():
     options = webdriver.ChromeOptions()
     #options.add_argument('headless')
 
-    driver = webdriver.Chrome(executable_path="C:\\Users\\*****\\Documents\\GitHub\\Glassdoor-Scrape\\chromedriver.exe", options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install())
     driver.set_window_size(1120, 1000)
 
     location_id = {'san francisco':1147401, 'new york':1132348, 'boston':1154532, 'los angeles':1146821, 'singapore': 3235921, 'jakarta':2709872}
@@ -27,8 +28,8 @@ def scrape_jobs():
     country = country.strip().lower()
     num_jobs = int(num_jobs)
     if country in location_id:
-        url = 'https://www.glassdoor.ca/Job/jobs.htm?sc.generalKeyword=%22' + job_name + '%22&sc.locationSeoString=' + country \
-              + '&locId=' + str(location_id.get(country)) + '&locT=C&jobType=fulltime'
+        url = 'https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=' +\
+            job_name + '&sc.keyword=' + job_name + '&locT=C&locId=' + str(location_id[country]) + '&jobType='
 
     driver.get(url)
     jobs = []
