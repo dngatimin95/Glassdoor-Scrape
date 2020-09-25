@@ -1,4 +1,4 @@
-# Glassdoor-Scrape
+# Glassdoor_Scrape
 
 *This repo is targeted only for those seeking a career in data science, software engineer or data/business analyst. Hopefully, it can be expanded further for other careers.*
 
