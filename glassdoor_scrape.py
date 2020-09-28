@@ -18,7 +18,6 @@ def scrape_jobs():
 
     options = webdriver.ChromeOptions()
     #options.add_argument('headless')
-
     driver = webdriver.Chrome(ChromeDriverManager().install())
     driver.set_window_size(1120, 1000)
 
