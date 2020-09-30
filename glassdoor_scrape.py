@@ -18,7 +18,7 @@ def scrape_jobs():
 
     options = webdriver.ChromeOptions()
     #options.add_argument('headless')
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options = options)
     driver.set_window_size(1120, 1000)
 
     location_id = {'san francisco':1147401, 'new york':1132348, 'boston':1154532, 'los angeles':1146821, 'singapore': 3235921, 'jakarta':2709872}
